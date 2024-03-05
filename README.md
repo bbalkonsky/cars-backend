@@ -1,2 +1,3 @@
-npm install
-npm rus start
+### `npm install`
+
+### `npm run start`
