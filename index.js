@@ -135,12 +135,29 @@ fastify.get('/cars/book/:id', async (request, reply) => {
   const { id } = request.params;
 
   const bookRepository = dataSource.getRepository(Booking);
-  const bookings = await bookRepository.find({ where: { car: id, startDate: MoreThanOrEqual(dateTime), archived: false } });
+  const bookings = await bookRepository.find({ where: { car: id, startDatetime: MoreThanOrEqual(dateTime), archived: false } });
 
   reply.send(bookings);
 });
 
-// need to create endpoint to book car
+// create booking by car id
+fastify.post('/cars/book/create/:id', async (request, reply) => {
+  const { id } = request.params;
+  const { driver, startTime, endTime, startDatetime } = request.body;
+
+  const bookRepository = dataSource.getRepository(Booking);
+
+  await bookRepository.save({
+    driver: driver,
+    car: id,
+    startTime: new Date(startTime),
+    endTime: new Date(endTime),
+    startDatetime: new Date(startDatetime),
+    archived: false
+  });
+
+  reply.send(200);
+});
 
 //archive booking by id
 fastify.post('/cars/book/remove/:id', async (request, reply) => {
@@ -148,7 +165,6 @@ fastify.post('/cars/book/remove/:id', async (request, reply) => {
 
   const bookRepository = dataSource.getRepository(Booking);
   const booking = await bookRepository.findOne({ where: { id } });
-  console.log(888, booking)
 
   await bookRepository.save({ ...booking, archived: true });
 
